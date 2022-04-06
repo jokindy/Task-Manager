@@ -10,8 +10,7 @@ import test.httptests.testrequests.HttpServerDeleteRequests;
 import java.io.IOException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-
-import static taskmanager.utilities.taskservices.TaskType.*;
+import java.util.Optional;
 
 public class HttpServerDeleteRequestTest extends HttpTaskServerTest {
 
@@ -24,7 +23,7 @@ public class HttpServerDeleteRequestTest extends HttpTaskServerTest {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        fileManager = Managers.getFileManager(file);
+        fileManager = Managers.getFileManager(path);
         boolean isClear = fileManager.getListOfSimpleTasks().isEmpty() &&
                 fileManager.getListOfEpicTasks().isEmpty();
         Assertions.assertTrue(isClear);
@@ -39,9 +38,9 @@ public class HttpServerDeleteRequestTest extends HttpTaskServerTest {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        fileManager = Managers.getFileManager(file);
-        Task task = fileManager.getTaskById(1, SIMPLE);
-        Assertions.assertNull(task);
+        fileManager = Managers.getFileManager(path);
+        Optional<Task> task = fileManager.getTaskById(1);
+        Assertions.assertTrue(task.isEmpty());
     }
 
     @Order(3)
@@ -53,9 +52,9 @@ public class HttpServerDeleteRequestTest extends HttpTaskServerTest {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        fileManager = Managers.getFileManager(file);
-        Task task = fileManager.getTaskById(3, EPIC);
-        Assertions.assertNull(task);
+        fileManager = Managers.getFileManager(path);
+        Optional<Task> task = fileManager.getTaskById(3);
+        Assertions.assertTrue(task.isEmpty());
     }
 
     @Order(4)
@@ -67,8 +66,8 @@ public class HttpServerDeleteRequestTest extends HttpTaskServerTest {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        fileManager = Managers.getFileManager(file);
-        Task task = fileManager.getTaskById(4, SUB);
-        Assertions.assertNull(task);
+        fileManager = Managers.getFileManager(path);
+        Optional<Task> task = fileManager.getTaskById(4);
+        Assertions.assertTrue(task.isEmpty());
     }
 }

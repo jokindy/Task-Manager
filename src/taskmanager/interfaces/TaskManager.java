@@ -1,26 +1,28 @@
 package taskmanager.interfaces;
 
-import taskmanager.tasks.*;
-import taskmanager.utilities.taskservices.TaskType;
+import taskmanager.tasks.Task;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeMap;
 
 public interface TaskManager {
 
-    boolean addTask(Task task);
+    boolean checkTask(int id);
+
+    void addTask(Task task);
 
     List<Task> getListOfSimpleTasks();
 
-    List<EpicTask> getListOfEpicTasks();
+    List<Task> getListOfEpicTasks();
 
-    List<SubTask> getEpicSubtasks(int id);
+    List<Task> getEpicSubtasks(int id);
 
-    Task getTaskById(int number, TaskType type);
+    Optional<Task> getTaskById(int number);
 
-    <T extends Task> void editTask(T task1, T task2);
+    void editTask(Task task1, Task task2);
 
-    <T extends Task> void removeTask(T task);
+    void removeTask(Task task);
 
     void clearAllTasks();
 

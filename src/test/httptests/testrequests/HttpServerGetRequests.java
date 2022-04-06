@@ -28,22 +28,22 @@ public class HttpServerGetRequests {
     }
 
     public static HttpRequest getEpicSubtasksRequest() {
-        URI requestURI = URI.create("http://localhost:8080/tasks/sub/epic/?id=3");
+        URI requestURI = URI.create("http://localhost:8080/tasks/epic?id=3&filter=sub");
         return makeRequest(requestURI);
     }
 
     public static HttpRequest getSimpleTaskRequest() {
-        URI requestURI = URI.create("http://localhost:8080/tasks/simple/?id=1");
+        URI requestURI = URI.create("http://localhost:8080/tasks/1");
         return makeRequest(requestURI);
     }
 
     public static HttpRequest getEpicTaskRequest() {
-        URI requestURI = URI.create("http://localhost:8080/tasks/epic/?id=3");
+        URI requestURI = URI.create("http://localhost:8080/tasks/3");
         return makeRequest(requestURI);
     }
 
     public static HttpRequest getSubTaskRequest() {
-        URI requestURI = URI.create("http://localhost:8080/tasks/sub/?id=4");
+        URI requestURI = URI.create("http://localhost:8080/tasks/4");
         return makeRequest(requestURI);
     }
 

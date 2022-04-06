@@ -1,15 +1,19 @@
 package taskmanager.utilities;
 
 import taskmanager.interfaces.TaskManager;
-import taskmanager.tasks.*;
-import taskmanager.utilities.taskservices.*;
+import taskmanager.tasks.SubTask;
+import taskmanager.tasks.Task;
+import taskmanager.utilities.taskservices.TaskCreator;
+import taskmanager.utilities.taskservices.TaskInfo;
+import taskmanager.utilities.taskservices.TaskStatus;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-
-import static taskmanager.utilities.taskservices.TaskType.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Scanner;
+import java.util.TreeMap;
 
 public class Functions {
 
@@ -29,82 +33,62 @@ public class Functions {
 
     public static void createSimpleOrEpicTask(TaskManager manager, Scanner scanner) {
         System.out.println("Хотите cоздать новую задачу? 1 - Простая, 2 - Эпик:");
+        Task task;
         while (true) {
             int taskType = scanner.nextInt();
             scanner.nextLine();
             if (taskType == 1) {
-                Task task = TaskCreator.createSimpleTask();
-                boolean isAdded = manager.addTask(task);
-                checkTaskIsAdded(isAdded, task.getId());
-                checkTaskTime(manager, task);
+                task = TaskCreator.createSimpleTask();
                 break;
             } else if (taskType == 2) {
-                EpicTask epicTask = TaskCreator.createEpicTask();
-                boolean isAdded = manager.addTask(epicTask);
-                checkTaskIsAdded(isAdded, epicTask.getId());
-                checkTaskTime(manager, epicTask);
+                task = TaskCreator.createEpicTask();
                 break;
             } else {
                 System.out.println("Неверная команда");
             }
         }
+        manager.addTask(task);
+        System.out.println("Задача успешно добавлена. Идентификатор: " + task.getId());
+        checkTaskTime(manager, task);
     }
 
     public static void createSubTask(TaskManager manager, Scanner scanner) {
-        System.out.println("Введите название эпика:");
-        String epicName = scanner.next();
-        SubTask subTask = TaskCreator.createSubTask(epicName);
-        boolean isAdded = manager.addTask(subTask);
-        checkTaskIsAdded(isAdded, subTask.getId());
-        checkTaskTime(manager, subTask);
+        System.out.println("Введите ID эпика:");
+        int epicID = scanner.nextInt();
+        if (manager.checkTask(epicID)) {
+            SubTask subTask = TaskCreator.createSubTask(epicID);
+            manager.addTask(subTask);
+            System.out.println("Задача успешно добавлена. Идентификатор: " + subTask.getId());
+            checkTaskTime(manager, subTask);
+        } else {
+            System.out.println("Такого эпика нет.");
+        }
     }
 
     public static void operateWithTasksByID(TaskManager manager, Scanner scanner) {
-        System.out.println("Какой тип задачи вы ищете? 1 - Простая, 2 - Эпик, 3 - Сабтаска:");
-        int taskType = scanner.nextInt();
         System.out.println("Введите идентификатор задачи:");
         int id = scanner.nextInt();
-        Task task = null;
-        boolean taskTypeError = false;
-        if (taskType == 1) {
-            task = manager.getTaskById(id, SIMPLE);
-        } else if (taskType == 2) {
-            task = manager.getTaskById(id, EPIC);
-        } else if (taskType == 3) {
-            task = manager.getTaskById(id, SUB);
-        } else {
-            taskTypeError = true;
-        }
-        if (task != null) {
+        Optional<Task> task = manager.getTaskById(id);
+        if (task.isPresent()) {
             System.out.println("Задача найдена. \nКакую операцию вы хотите совершить? 1 - Вывести инфу, " +
                     "2 - Изменить задачу, 3 - Удалить задачу");
             int operation = scanner.nextInt();
-            operateWithTasks(operation, task, manager, scanner);
-        } else if (taskTypeError) {
-            System.out.println("Неверно выбран тип задачи.");
+            operateWithTasks(operation, task.get(), manager, scanner);
         } else {
             System.out.println("Задача с данным идентификатором не найдена.");
         }
     }
 
-    public static <T extends Task> void operateWithTasks(int operation, T task1, TaskManager manager,
-                                                         Scanner scanner) {
-        int command = 0;
-        if (operation == 2) {
-            System.out.println("Что вы хотите изменить:");
-            System.out.println("1 - Название (Для тасок и эпиков), 2 - Описание (для всех задач), " +
-                    "3 - Статус (для тасок и сабтасок), \n" +
-                    "4 - Продолжительность, 5 - Дату начала выполнения задачи.");
-            command = scanner.nextInt();
-            scanner.nextLine();
-        }
+    public static void operateWithTasks(int operation, Task task1, TaskManager manager, Scanner scanner) {
         switch (operation) {
             case 1:
                 printTaskInfo(task1);
                 break;
             case 2:
-                T task2 = updateTaskInfo(command, task1);
-                if (task2 != null) {
+                int command = getCommand(scanner);
+                Task buffer = new Task(task1);
+                Task task2 = updateTaskInfo(command, task1);
+                if (!task2.equals(buffer)) {
                     manager.editTask(task1, task2);
                     checkTaskTime(manager, task2);
                     System.out.println("Задача успешно обновлена!");
@@ -120,51 +104,31 @@ public class Functions {
         }
     }
 
-    public static <T extends Task> T updateTaskInfo(int command, T task) {
+    public static Task updateTaskInfo(int command, Task task) {
         switch (command) {
             case 1:
-                if (task.getType() != SUB) {
-                    String theme = TaskInfo.getTaskTheme();
-                    task.setTheme(theme);
-                    return task;
-                } else {
-                    System.out.println("Название у сабтаски изменить нельзя. \nЗадача не обновлена.");
-                    return null;
-                }
+                String theme = TaskInfo.getTaskTheme();
+                task.setTheme(theme);
+                return task;
             case 2:
                 String description = TaskInfo.getTaskDescription();
                 task.setDescription(description);
                 return task;
             case 3:
-                if (task.getType() != EPIC) {
-                    TaskStatus status = TaskInfo.getTaskStatus();
-                    task.setStatus(status);
-                    return task;
-                } else {
-                    System.out.println("Статус у эпика рассчитывается автоматически. \nЗадача не обновлена.");
-                    return null;
-                }
+                TaskStatus status = TaskInfo.getTaskStatus();
+                task.setStatus(status);
+                return task;
             case 4:
-                if (task.getType() != EPIC) {
-                    Duration duration = TaskInfo.getTaskDuration();
-                    task.setDuration(duration);
-                    return task;
-                } else {
-                    System.out.println("Продолжительность эпика рассчитывается автоматически. \nЗадача не обновлена.");
-                    return null;
-                }
+                Duration duration = TaskInfo.getTaskDuration();
+                task.setDuration(duration);
+                return task;
             case 5:
-                if (task.getType() != EPIC) {
-                    LocalDateTime dateTime = TaskInfo.getTaskStartDate();
-                    task.setStartTime(dateTime);
-                    return task;
-                } else {
-                    System.out.println("Дата старта эпика рассчитывается автоматически. \nЗадача не обновлена.");
-                    return null;
-                }
+                LocalDateTime dateTime = TaskInfo.getTaskStartDate();
+                task.setStartTime(dateTime);
+                return task;
             default:
                 System.out.println("Неверная команда");
-                return null;
+                return task;
         }
     }
 
@@ -222,11 +186,11 @@ public class Functions {
         }
     }
 
-    public static void checkTaskIsAdded(boolean isAdded, int id) {
-        if (isAdded) {
-            System.out.println("Задача успешно добавлена. Идентификатор: " + id);
-        } else {
-            System.out.println("Задача не добавлена.");
-        }
+    public static int getCommand(Scanner scanner) {
+        System.out.println("Что вы хотите изменить:");
+        System.out.println("1 - Название (Для тасок и эпиков), 2 - Описание (для всех задач), " +
+                "3 - Статус (для тасок и сабтасок), \n" +
+                "4 - Продолжительность, 5 - Дату начала выполнения задачи.");
+        return scanner.nextInt();
     }
 }

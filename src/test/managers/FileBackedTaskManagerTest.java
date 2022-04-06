@@ -2,18 +2,18 @@ package test.managers;
 
 import org.junit.jupiter.api.*;
 import taskmanager.managers.FileBackedTaskManager;
-import taskmanager.tasks.*;
+import taskmanager.tasks.EpicTask;
+import taskmanager.tasks.Task;
 
-import java.io.File;
 import java.util.List;
 
 public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
-    private static final File file = new File("resources\\test\\test.csv");
+    private static final String path = "resources\\test\\test.csv";
 
     @BeforeEach
     public void beforeEach() {
-        FileBackedTaskManager fileManager = new FileBackedTaskManager(file);
+        FileBackedTaskManager fileManager = new FileBackedTaskManager(path);
         fileManager.addTask(ManagerTestTasks.task1);
         fileManager.addTask(ManagerTestTasks.task2);
         fileManager.addTask(ManagerTestTasks.epicTask);
@@ -24,7 +24,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
 
     @AfterEach
     public void afterEach() {
-        FileBackedTaskManager fileManager = new FileBackedTaskManager(file);
+        FileBackedTaskManager fileManager = new FileBackedTaskManager(path);
         fileManager.clearAllTasks();
         setParameters(fileManager);
     }
@@ -32,12 +32,13 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
     @Order(8)
     @Test
     public void shouldReadTasksFromFile() {
-        FileBackedTaskManager anotherManager = new FileBackedTaskManager(file);
+        FileBackedTaskManager anotherManager = new FileBackedTaskManager(path);
         List<Task> list = anotherManager.getListOfSimpleTasks();
-        List<EpicTask> epicTasks = anotherManager.getListOfEpicTasks();
-        for (EpicTask epicTask : epicTasks) {
+        List<Task> epicTasks = anotherManager.getListOfEpicTasks();
+        for (Task epicTask : epicTasks) {
             list.add(epicTask);
-            list.addAll(epicTask.getListOfSubTasks());
+            List<Task> listOfSubTasks = ((EpicTask) epicTask).getListOfSubTasks();
+            list.addAll(listOfSubTasks);
         }
         Assertions.assertEquals(ManagerTestTasks.listOfTasks, list);
     }
@@ -45,17 +46,15 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
     @Order(9)
     @Test
     public void shouldReadHistoryFromFile() {
-        File history = new File("resources\\test\\historyTest.csv");
-        FileBackedTaskManager fileManager = new FileBackedTaskManager(history);
-        List<Task> list = fileManager.getHistory();
+        FileBackedTaskManager anotherManager = new FileBackedTaskManager("resources\\test\\historyTest.csv");
+        List<Task> list = anotherManager.getHistory();
         Assertions.assertEquals(ManagerTestTasks.history, list);
     }
 
     @Order(10)
     @Test
     public void shouldReadEmptyHistoryFromFile() {
-        File file = new File("resources\\test\\emptyFile.csv");
-        FileBackedTaskManager anotherManager = new FileBackedTaskManager(file);
+        FileBackedTaskManager anotherManager = new FileBackedTaskManager("resources\\test\\emptyFile.csv");
         List<Task> list = anotherManager.getHistory();
         Assertions.assertTrue(list.isEmpty());
     }
@@ -63,8 +62,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
     @Order(11)
     @Test
     public void shouldReadEmptyTasksFromFile() {
-        File file = new File("resources\\test\\emptyFile.csv");
-        FileBackedTaskManager anotherManager = new FileBackedTaskManager(file);
+        FileBackedTaskManager anotherManager = new FileBackedTaskManager("resources\\test\\emptyFile.csv");
         boolean isEmpty = anotherManager.getListOfEpicTasks().isEmpty() &&
                 anotherManager.getListOfSimpleTasks().isEmpty();
         Assertions.assertTrue(isEmpty);

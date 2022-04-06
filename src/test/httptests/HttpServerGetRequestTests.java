@@ -1,13 +1,15 @@
 package test.httptests;
 
 import org.junit.jupiter.api.*;
+import taskmanager.tasks.Task;
+import taskmanager.tasks.TaskDTO;
 import test.httptests.testrequests.HttpServerGetRequests;
 
 import java.io.IOException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-
-import static taskmanager.utilities.taskservices.TaskType.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class HttpServerGetRequestTests extends HttpTaskServerTest {
@@ -15,7 +17,11 @@ public class HttpServerGetRequestTests extends HttpTaskServerTest {
     @Order(1)
     @Test
     public void shouldGetAllTasksByRequest() {
-        String json = gson.toJson(fileManager.getPrioritizedTasks());
+        List<TaskDTO> list = new ArrayList<>();
+        for (Task task : fileManager.getPrioritizedTasks().keySet()) {
+            list.add(new TaskDTO(task));
+        }
+        String json = gson.toJson(list);
         HttpRequest request = HttpServerGetRequests.getAllTasksRequest();
         String anotherJson = getRequestBody(request);
         Assertions.assertEquals(json, anotherJson);
@@ -51,7 +57,8 @@ public class HttpServerGetRequestTests extends HttpTaskServerTest {
     @Order(5)
     @Test
     public void shouldGetSimpleTaskByRequest() {
-        String json = gson.toJson(fileManager.getTaskById(1, SIMPLE));
+        TaskDTO task = new TaskDTO(fileManager.getTaskById(1).get());
+        String json = gson.toJson(task);
         HttpRequest request = HttpServerGetRequests.getSimpleTaskRequest();
         String anotherJson = getRequestBody(request);
         Assertions.assertEquals(json, anotherJson);
@@ -60,7 +67,8 @@ public class HttpServerGetRequestTests extends HttpTaskServerTest {
     @Order(6)
     @Test
     public void shouldGetEpicTaskByRequest() {
-        String json = gson.toJson(fileManager.getTaskById(3, EPIC));
+        TaskDTO task = new TaskDTO(fileManager.getTaskById(3).get());
+        String json = gson.toJson(task);
         HttpRequest request = HttpServerGetRequests.getEpicTaskRequest();
         String anotherJson = getRequestBody(request);
         Assertions.assertEquals(json, anotherJson);
@@ -69,7 +77,8 @@ public class HttpServerGetRequestTests extends HttpTaskServerTest {
     @Order(7)
     @Test
     public void shouldGetSubTaskByRequest() {
-        String json = gson.toJson(fileManager.getTaskById(4, SUB));
+        TaskDTO task = new TaskDTO(fileManager.getTaskById(4).get());
+        String json = gson.toJson(task);
         HttpRequest request = HttpServerGetRequests.getSubTaskRequest();
         String anotherJson = getRequestBody(request);
         Assertions.assertEquals(json, anotherJson);

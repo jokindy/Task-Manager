@@ -10,32 +10,29 @@ public class KVTaskClient {
 
     private final URI url;
     private final HttpClient httpClient;
+    private final int API_KEY;
 
-    public KVTaskClient(URI path) {
+    public KVTaskClient(URI path, int key) {
         httpClient = HttpClient.newHttpClient();
         this.url = path;
+        this.API_KEY = key;
     }
 
-    public void saveManager(String key, int api_key, String json) {
-        URI requestURI = URI.create(this.url + "/save/" + key + "?API_KEY=" + api_key);
+    public void save(String tasks, String key) {
+        URI requestURI = URI.create(this.url + "/save/" + key + "?API_KEY=" + API_KEY);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(requestURI)
-                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .POST(HttpRequest.BodyPublishers.ofString(tasks))
                 .build();
         try {
-            HttpResponse<String> response = httpClient.send(request,
-                    HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                System.out.println("Все супер!");
-            }
+            httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    public String loadManager(String key, int api_key) {
-        String json = null;
-        URI requestURI = URI.create(this.url + "/load/" + key + "?API_KEY=" + api_key);
+    public String load(String key) {
+        URI requestURI = URI.create(this.url + "/load/" + key + "?API_KEY=" + API_KEY);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(requestURI)
                 .GET()
@@ -44,16 +41,16 @@ public class KVTaskClient {
             HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) {
-                json = response.body();
+                return response.body();
+            } else if (response.statusCode() == 404) {
+                return "222";
+            } else {
+                return "333";
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
+            return "222";
         }
-        return json;
-    }
-
-    public HttpClient getHttpClient() {
-        return httpClient;
     }
 }
 

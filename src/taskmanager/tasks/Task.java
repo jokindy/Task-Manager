@@ -5,7 +5,6 @@ import taskmanager.utilities.taskservices.TaskType;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import static taskmanager.utilities.taskservices.TaskType.SIMPLE;
@@ -29,6 +28,16 @@ public class Task implements Comparable<Task> {
         this.status = status;
         this.duration = duration;
         this.startTime = startTime;
+    }
+
+    public Task (Task anotherTask) {
+        this.id = anotherTask.id;
+        this.type = anotherTask.type;
+        this.theme = anotherTask.theme;
+        this.description = anotherTask.description;
+        this.status = anotherTask.status;
+        this.duration = anotherTask.duration;
+        this.startTime = anotherTask.startTime;
     }
 
     public String getTheme() {
@@ -77,22 +86,6 @@ public class Task implements Comparable<Task> {
 
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
-    }
-
-    @Override
-    public String toString() {
-        String text = this.id + ","
-                + this.type + ","
-                + this.theme + ","
-                + this.description + ","
-                + this.status + ","
-                + this.duration.toHours() + ",";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy.HH.mm");
-        if (this.startTime != null) {
-            return text + this.startTime.format(formatter);
-        } else {
-            return text + null;
-        }
     }
 
     @Override

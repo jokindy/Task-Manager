@@ -1,160 +1,92 @@
 package taskmanager.managers;
 
-import taskmanager.interfaces.*;
-import taskmanager.tasks.*;
-import taskmanager.utilities.taskservices.TaskType;
+import taskmanager.interfaces.EpicHandler;
+import taskmanager.interfaces.HistoryManager;
+import taskmanager.interfaces.TaskManager;
+import taskmanager.tasks.EpicTask;
+import taskmanager.tasks.Task;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class InMemoryTaskManager implements TaskManager {
+import static taskmanager.utilities.taskservices.TaskType.*;
 
-    protected List<Task> simpleTasks;
-    protected List<EpicTask> epicTasks;
+public class InMemoryTaskManager implements TaskManager, EpicHandler {
+
     protected HistoryManager historyManager;
     private final TreeMap<Task, Integer> sortedTasks;
+    protected TaskRepository repository;
 
     public InMemoryTaskManager() {
-        simpleTasks = new ArrayList<>();
-        epicTasks = new ArrayList<>();
+        repository = new TaskRepository();
         historyManager = new InMemoryHistoryManager();
         sortedTasks = new TreeMap<>();
     }
 
     @Override
-    public boolean addTask(Task task) {
-        TaskType type = task.getType();
-        switch (type) {
-            case SIMPLE:
-                simpleTasks.add(task);
-                sortedTasks.put(task, task.getId());
-                return true;
-            case EPIC:
-                epicTasks.add((EpicTask) task);
-                ((EpicTask) task).setListOfSubTasks(new ArrayList<>());
-                sortedTasks.put(task, task.getId());
-                return true;
-            case SUB:
-                for (EpicTask epicTask : epicTasks) {
-                    if (task.getTheme().equals(epicTask.getTheme())) {
-                        epicTask.getListOfSubTasks().add((SubTask) task);
-                        sortedTasks.put(task, task.getId());
-                        return true;
-                    }
-                }
-                break;
-        }
-        return false;
+    public boolean checkTask(int id) {
+        Optional<Task> task = repository.getTaskById(id);
+        return task.isPresent() && task.get().getType().equals(EPIC);
+    }
+
+
+    @Override
+    public void addTask(Task task) {
+        repository.add(task);
+        sortedTasks.put(task, task.getId());
     }
 
     @Override
     public List<Task> getListOfSimpleTasks() {
-        return simpleTasks;
+        return repository.getListOfTasks(SIMPLE);
     }
 
     @Override
-    public List<EpicTask> getListOfEpicTasks() {
-        return epicTasks;
+    public List<Task> getListOfEpicTasks() {
+        return repository.getListOfTasks(EPIC);
     }
 
     @Override
-    public List<SubTask> getEpicSubtasks(int id) {
-        for (EpicTask epicTask : epicTasks) {
-            List<SubTask> listOfSubTasks = epicTask.getListOfSubTasks();
-            if (epicTask.getId() == id && !listOfSubTasks.isEmpty()) {
-                return listOfSubTasks;
-            }
+    public List<Task> getEpicSubtasks(int id) {
+        Optional<Task> task = repository.getTaskById(id);
+        if (task.isPresent()) {
+            EpicTask epicTask = (EpicTask) task.get();
+            Set<Integer> subId = epicTask.getSetOfSubId();
+            return repository.getListOfSubTasks(subId);
+        } else {
+            return new ArrayList<>();
         }
-        return null;
     }
 
     @Override
-    public Task getTaskById(int number, TaskType type) {
-        Task task = null;
-        switch (type) {
-            case SIMPLE:
-                for (Task simpleTask : simpleTasks) {
-                    if (number == simpleTask.getId()) {
-                        task = simpleTask;
-                    }
-                }
-                break;
-            case EPIC:
-                for (EpicTask epicTask : epicTasks) {
-                    if (number == epicTask.getId()) {
-                        task = epicTask;
-                    }
-                }
-                break;
-            case SUB:
-                for (EpicTask epicTask : epicTasks) {
-                    List<SubTask> listOfSubTasks = epicTask.getListOfSubTasks();
-                    for (SubTask subTask : listOfSubTasks) {
-                        if (number == subTask.getId()) {
-                            task = subTask;
-                        }
-                    }
-                }
-                break;
+    public Optional<Task> getTaskById(int id) {
+        Optional<Task> task = repository.getTaskById(id);
+        if (task.isPresent()) {
+            historyManager.addTaskToHistory(task.get());
+            return task;
+        } else {
+            return Optional.empty();
         }
-        if (task != null) {
-            historyManager.addTaskToHistory(task);
-        }
-        return task;
     }
 
     @Override
-    public <T extends Task> void removeTask(T task) {
-        TaskType type = task.getType();
-        switch (type) {
-            case SIMPLE:
-                simpleTasks.remove(task);
-                break;
-            case EPIC:
-                epicTasks.remove((EpicTask) task);
-                for (SubTask subTask : ((EpicTask) task).getListOfSubTasks()) {
-                    int subTaskID = subTask.getId();
-                    historyManager.removeTask(subTaskID);
-                    sortedTasks.remove(subTask);
-                }
-                break;
-            case SUB:
-                for (EpicTask epicTask : epicTasks) {
-                    epicTask.getListOfSubTasks().remove((SubTask) task);
-                }
-                break;
-        }
+    public void removeTask(Task task) {
+        repository.remove(task);
         historyManager.removeTask(task.getId());
         sortedTasks.remove(task);
+        handleEpic(task);
     }
 
     @Override
-    public <T extends Task> void editTask(T taskOld, T taskNew) {
-        TaskType type = taskOld.getType();
-        switch (type) {
-            case SIMPLE:
-                int position = simpleTasks.indexOf(taskOld);
-                simpleTasks.set(position, taskNew);
-                break;
-            case EPIC:
-                position = epicTasks.indexOf((EpicTask) taskOld);
-                epicTasks.set(position, (EpicTask) taskNew);
-                break;
-            case SUB:
-                for (EpicTask epicTask : epicTasks) {
-                    position = epicTask.getListOfSubTasks().indexOf((SubTask) taskOld);
-                    epicTask.getListOfSubTasks().set(position, (SubTask) taskNew);
-                }
-                break;
-        }
+    public void editTask(Task taskOld, Task taskNew) {
+        repository.updateTask(taskOld, taskNew);
         sortedTasks.remove(taskOld);
         sortedTasks.put(taskNew, taskNew.getId());
     }
 
     @Override
     public void clearAllTasks() {
-        simpleTasks.clear();
-        epicTasks.clear();
+        repository.clear();
         historyManager.clearHistory();
         sortedTasks.clear();
     }
@@ -184,5 +116,15 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
         return false;
+    }
+
+    @Override
+    public void handleEpic(Task task) {
+        if (task.getType().equals(EPIC)) {
+            List<Task> listOfSubTasks = ((EpicTask) task).getListOfSubTasks();
+            for (Task t: listOfSubTasks) {
+                removeTask(t);
+            }
+        }
     }
 }

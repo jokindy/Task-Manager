@@ -70,23 +70,29 @@ public class TaskInfo {
     public static LocalDateTime getTaskStartDate() {
         System.out.println("Установить дату начала выполнения задачи? 1 - Да, 2 - Нет:");
         LocalDateTime time = null;
-        int command = scanner.nextInt();
-        scanner.nextLine();
-        if (command == 1) {
-            System.out.println("Когда планируете приступить к задаче? Формат ввода данных: дд.мм.гг чч.мм");
-            boolean loop = true;
-            while (loop) {
-                String date = scanner.nextLine();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yy HH.mm");
-                try {
-                    time = LocalDateTime.parse(date, formatter);
-                    loop = false;
-                } catch (DateTimeParseException e) {
-                    System.out.println("Ошибка ввода. Повторите ввод в формате дд.мм.гг чч.мм.");
+        while (true) {
+            int command = scanner.nextInt();
+            scanner.nextLine();
+            if (command == 1) {
+                System.out.println("Когда планируете приступить к задаче? Формат ввода данных: дд.мм.гг чч.мм");
+                boolean loop = true;
+                while (loop) {
+                    String date = scanner.nextLine();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yy HH.mm");
+                    try {
+                        time = LocalDateTime.parse(date, formatter);
+                        loop = false;
+                    } catch (DateTimeParseException e) {
+                        System.out.println("Ошибка ввода. Повторите ввод в формате дд.мм.гг чч.мм.");
+                    }
                 }
+                break;
+            } else if (command == 2) {
+                System.out.println("Дата не установлена. Не забудьте заполнить ее в последующем.");
+                break;
+            } else {
+                System.out.println("Неверная команда.");
             }
-        } else if (command == 2) {
-            System.out.println("Дата не установлена. Не забудьте заполнить ее в последующем.");
         }
         return time;
     }

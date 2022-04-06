@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Random;
 
 public class KVServer {
-    public static final int PORT = 8079;
+    public static final int PORT = 8080;
     private final String API_KEY;
     private final HttpServer server;
     private final Map<String, String> data = new HashMap<>();
@@ -58,7 +58,7 @@ public class KVServer {
     private String getApiKey() {
         Random random = new Random();
         int key = random.nextInt(10000);
-        return String.valueOf(key);
+        return String.valueOf(111);
     }
 
     public void start() {
@@ -112,7 +112,7 @@ public class KVServer {
                 return;
             }
             data.put(key, value);
-            System.out.println("Данные сохранены! Key - " + key);
+            //System.out.println("Данные сохранены! Key - " + key);
             h.sendResponseHeaders(200, 0);
         } else {
             System.out.println("/save ждёт POST-запрос, а получил: " + h.getRequestMethod());

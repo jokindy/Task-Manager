@@ -1,8 +1,6 @@
 package test.basetests;
 
-import taskmanager.tasks.EpicTask;
-import taskmanager.tasks.SubTask;
-import taskmanager.tasks.Task;
+import taskmanager.tasks.*;
 
 import java.time.Duration;
 
@@ -18,11 +16,11 @@ public class BaseTestTasks {
     static EpicTask changedEpic = new EpicTask(3, "EPIC-1", "TEST-1",
             null, Duration.ZERO, null);
     static SubTask sub1 = new SubTask(4, "EPIC-1", "SUB-1",
-            NEW, Duration.ofDays(2), null);
+            NEW, Duration.ofDays(2), null, 3);
     static SubTask sub2 = new SubTask(5, "EPIC-1", "SUB-2",
-            DONE, Duration.ofDays(2), null);
+            DONE, Duration.ofDays(2), null, 3);
     static SubTask changedSub = new SubTask(4, "EPIC-1", "TEST-1",
-            NEW, Duration.ofDays(2), null);
+            NEW, Duration.ofDays(2), null, 3);
     static SubTask anotherSub = new SubTask(6, "EPIC-5", "SUB-1",
-            DONE, Duration.ofDays(2), null);
+            DONE, Duration.ofDays(2), null, 8);
 }

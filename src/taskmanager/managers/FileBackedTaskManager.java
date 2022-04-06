@@ -1,8 +1,10 @@
 package taskmanager.managers;
 
-import taskmanager.tasks.*;
-import taskmanager.utilities.*;
-import taskmanager.utilities.taskservices.*;
+import taskmanager.tasks.Task;
+import taskmanager.tasks.TaskDTO;
+import taskmanager.utilities.ManagerSaveException;
+import taskmanager.utilities.taskservices.TaskCreator;
+import taskmanager.utilities.taskservices.TaskIdGenerator;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -11,28 +13,32 @@ import java.util.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
-    private final File file;
+    private final String path;
 
-    public FileBackedTaskManager(File file) {
-        this.file = file;
-        readFromFile();
+    public FileBackedTaskManager(String path) {
+        this.path = path;
+        new File(path);
+        load();
+    }
+
+    public FileBackedTaskManager() {
+        path = null;
     }
 
     @Override
-    public boolean addTask(Task task) {
-        boolean isAdded = super.addTask(task);
+    public void addTask(Task task) {
+        super.addTask(task);
         save();
-        return isAdded;
     }
 
     @Override
-    public <T extends Task> void editTask(T taskOld, T taskNew) {
+    public void editTask(Task taskOld, Task taskNew) {
         super.editTask(taskOld, taskNew);
         save();
     }
 
     @Override
-    public <T extends Task> void removeTask(T task) {
+    public void removeTask(Task task) {
         super.removeTask(task);
         save();
     }
@@ -44,25 +50,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public Task getTaskById(int number, TaskType type) {
-        Task task = super.getTaskById(number, type);
+    public Optional<Task> getTaskById(int number) {
+        Optional<Task> task = super.getTaskById(number);
         save();
         return task;
     }
 
     public void save() {
-        String path = file.getPath();
         try (Writer writer = new FileWriter(path)) {
-            writer.write("id,type,theme,description,status,duration,startTime\n");
-            for (Task simpleTask : simpleTasks) {
-                writer.write(simpleTask.toString() + "\n");
-            }
-            for (EpicTask epicTask : epicTasks) {
-                writer.write(epicTask.toString() + "\n");
-                List<SubTask> listOfSubTasks = epicTask.getListOfSubTasks();
-                for (SubTask subTask : listOfSubTasks) {
-                    writer.write(subTask.toString() + "\n");
-                }
+            writer.write("id,type,theme,description,status,duration,startTime,epicId,subIDs\n");
+            Map<Integer, Task> map = TaskRepository.getStorage();
+            for (Task task : map.values()) {
+                TaskDTO formattedTask = new TaskDTO(task);
+                writer.write(formattedTask + "\n");
             }
             List<Task> list = super.getHistory();
             if (!list.isEmpty()) {
@@ -77,9 +77,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
 
-    public void readFromFile() {
+    public void load() {
         try {
-            List<String> list = Files.readAllLines(Path.of(file.getPath()));
+            List<String> list = Files.readAllLines(Path.of(path));
             List<Task> listOfTasks = new ArrayList<>();
             String historyID = null;
             if (list.contains("")) {
@@ -93,8 +93,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 listOfTasks.add(task);
                 super.addTask(task);
             }
-            TaskIdGenerator.setListOfId(listOfTasks);
             if (!listOfTasks.isEmpty()) {
+                TaskIdGenerator.setListOfId(listOfTasks);
                 System.out.print("Задачи прочтены из файла. ID: ");
                 for (Task task : listOfTasks) {
                     System.out.print(task.getId() + "; ");
@@ -118,7 +118,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return list;
     }
 
-    private void fillHistory(List<Task> listOfTasks, String value) {
+    protected void fillHistory(List<Task> listOfTasks, String value) {
         List<Integer> listOfID = idFromFile(value);
         for (Integer id : listOfID) {
             for (Task task : listOfTasks) {

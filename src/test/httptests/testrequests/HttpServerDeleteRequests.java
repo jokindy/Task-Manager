@@ -18,17 +18,17 @@ public class HttpServerDeleteRequests extends HttpServerGetRequests {
     }
 
     public static HttpRequest removeSimpleTaskRequest() {
-        URI requestURI = URI.create("http://localhost:8080/tasks/simple/?id=1");
+        URI requestURI = URI.create("http://localhost:8080/tasks/1");
         return makeRequest(requestURI);
     }
 
     public static HttpRequest removeEpicTaskRequest() {
-        URI requestURI = URI.create("http://localhost:8080/tasks/epic/?id=3");
+        URI requestURI = URI.create("http://localhost:8080/tasks/3");
         return makeRequest(requestURI);
     }
 
     public static HttpRequest removeSubTaskRequest() {
-        URI requestURI = URI.create("http://localhost:8080/tasks/sub/?id=4");
+        URI requestURI = URI.create("http://localhost:8080/tasks/4");
         return makeRequest(requestURI);
     }
 }

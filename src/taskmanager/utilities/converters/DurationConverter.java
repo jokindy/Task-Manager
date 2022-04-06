@@ -17,7 +17,7 @@ public class DurationConverter implements JsonSerializer<Duration>, JsonDeserial
 
     @Override
     public JsonElement serialize(Duration duration, Type type, JsonSerializationContext context) {
-        int hours = (int) duration.toHours();
+        long hours = duration.toHours();
         return new JsonPrimitive(hours);
     }
 }

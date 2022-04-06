@@ -2,11 +2,12 @@ package test.managers;
 
 import org.junit.jupiter.api.*;
 import taskmanager.interfaces.TaskManager;
-import taskmanager.tasks.*;
+import taskmanager.tasks.EpicTask;
+import taskmanager.tasks.SubTask;
+import taskmanager.tasks.Task;
 
-import java.util.*;
-
-import static taskmanager.utilities.taskservices.TaskType.*;
+import java.util.List;
+import java.util.TreeMap;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public abstract class TaskManagerTest<T extends TaskManager> {
@@ -47,15 +48,15 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     public void shouldGetListOfSubTasks() {
         List<SubTask> list = List.of(sub1, sub2);
-        List<SubTask> listOfSubTasks = manager.getEpicSubtasks(3);
+        List<Task> listOfSubTasks = manager.getEpicSubtasks(3);
         Assertions.assertEquals(list, listOfSubTasks);
     }
 
     @Order(5)
     @Test
     public void shouldGetHistory() {
-        Task task = manager.getTaskById(1, SIMPLE);
-        SubTask subTask = (SubTask) manager.getTaskById(4, SUB);
+        Task task = manager.getTaskById(1).get();
+        SubTask subTask = (SubTask) manager.getTaskById(4).get();
         List<Task> list = List.of(task, subTask);
         Assertions.assertEquals(list, manager.getHistory());
     }

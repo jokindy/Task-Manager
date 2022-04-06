@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.TestMethodOrder;
 import taskmanager.managers.FileBackedTaskManager;
-import taskmanager.servers.taskserver.HttpTaskServer;
+import taskmanager.servers.HttpTaskServer;
 import taskmanager.utilities.converters.Converters;
 
 import java.io.File;
@@ -21,7 +21,7 @@ import java.util.List;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class HttpTaskServerTest {
 
-    protected static File file = new File("resources\\test\\http\\httptest.csv");
+    protected static String path = "resources\\test\\http\\httptest.csv";
     private final File buffer = new File("resources\\test\\http\\buffer.csv");
     private HttpTaskServer server;
     protected FileBackedTaskManager fileManager;
@@ -30,10 +30,10 @@ public class HttpTaskServerTest {
 
     @BeforeEach
     public void beforeEach() throws IOException {
-        server = new HttpTaskServer(file);
+        server = new HttpTaskServer(path);
         server.start();
         client = HttpClient.newHttpClient();
-        fileManager = new FileBackedTaskManager(file);
+        fileManager = new FileBackedTaskManager(path);
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.serializeNulls();
         gson = Converters.registerAll(gsonBuilder).create();
@@ -42,7 +42,7 @@ public class HttpTaskServerTest {
     @AfterEach
     public void afterEach() throws IOException {
         server.close();
-        FileWriter fileWriter = new FileWriter(file, false);
+        FileWriter fileWriter = new FileWriter(path, false);
         List<String> list = Files.readAllLines(Path.of(buffer.getPath()));
         for (String s : list) {
             fileWriter.write(s + "\n");

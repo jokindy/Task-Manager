@@ -1,21 +1,19 @@
 package taskmanager.managers;
 
 import taskmanager.interfaces.TaskManager;
-
-import java.io.File;
-import java.net.URI;
+import taskmanager.servers.KVTaskClient;
 
 public class Managers {
 
-    public static TaskManager getDefault(File file, URI url) {
-        return new HttpTaskManager(file, url);
+    public static TaskManager getDefault(KVTaskClient client) {
+        return new HttpTaskManager(client);
     }
 
     public static TaskManager getInMemoryTaskManager() {
         return new InMemoryTaskManager();
     }
 
-    public static FileBackedTaskManager getFileManager(File file) {
-        return new FileBackedTaskManager(file);
+    public static FileBackedTaskManager getFileManager(String path) {
+        return new FileBackedTaskManager(path);
     }
 }

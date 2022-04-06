@@ -16,9 +16,9 @@ public class ManagerTestTasks {
     static EpicTask epicTask = new EpicTask(3, "EPIC-1", "TEST",
             NEW, Duration.ZERO, LocalDateTime.of(2022, 8, 3, 10, 0));
     static SubTask sub1 = new SubTask(4, "EPIC-1", "SUB-1",
-            NEW, Duration.ofDays(2), LocalDateTime.of(2022, 8, 3, 10, 0));
+            NEW, Duration.ofDays(2), LocalDateTime.of(2022, 8, 3, 10, 0), 3);
     static SubTask sub2 = new SubTask(5, "EPIC-1", "SUB-2",
-            NEW, Duration.ofHours(2), LocalDateTime.of(2022, 9, 3, 10, 0));
+            NEW, Duration.ofHours(2), LocalDateTime.of(2022, 9, 3, 10, 0), 3);
     static Task taskCrossed = new Task(6, "SIMPLE-2", "TEST",
             IN_PROGRESS, Duration.ofDays(2), LocalDateTime.of(2022, 8, 4, 10, 0));
     static List<Task> listOfTasks = List.of(task1, task2, epicTask, sub1, sub2);

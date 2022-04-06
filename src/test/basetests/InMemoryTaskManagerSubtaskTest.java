@@ -2,15 +2,14 @@ package test.basetests;
 
 import org.junit.jupiter.api.*;
 import taskmanager.tasks.SubTask;
-import taskmanager.utilities.taskservices.TaskType;
+import taskmanager.tasks.Task;
 
-import java.util.ArrayList;
+import java.util.Optional;
 
 public class InMemoryTaskManagerSubtaskTest extends BaseTaskManager<SubTask> {
 
     @BeforeAll
     static void beforeAll() {
-        BaseTestTasks.epic.setListOfSubTasks(new ArrayList<>());
         setEpicTask(BaseTestTasks.epic);
     }
 
@@ -22,9 +21,12 @@ public class InMemoryTaskManagerSubtaskTest extends BaseTaskManager<SubTask> {
     @Order(6)
     @Test
     public void shouldAddSubtaskToNonExistentEpic() {
-        manager.addTask(BaseTestTasks.anotherSub);
-        SubTask findTask = (SubTask) manager.getTaskById(BaseTestTasks.anotherSub.getId(),
-                TaskType.SUB);
-        Assertions.assertNull(findTask);
+        int anotherId = BaseTestTasks.anotherSub.getEpicId();
+        boolean isContains = manager.checkTask(anotherId);
+        if (isContains) {
+            manager.addTask(BaseTestTasks.anotherSub);
+        }
+        Optional<Task> receivedTask = manager.getTaskById(BaseTestTasks.anotherSub.getId());
+        Assertions.assertTrue(receivedTask.isEmpty());
     }
 }

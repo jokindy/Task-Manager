@@ -51,8 +51,6 @@ public class TaskGetEndPoints {
         String[] splitStrings = query.split("&");
         int id = Integer.parseInt(splitStrings[0].substring(3));
         String filter = splitStrings[1].substring(7);
-        System.out.println(id);
-        System.out.println(filter);
         if (filter.equals("sub")) {
             List<Task> list = manager.getEpicSubtasks(id);
             return gson.toJson(list);

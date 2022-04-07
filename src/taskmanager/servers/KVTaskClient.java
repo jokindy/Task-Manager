@@ -42,14 +42,12 @@ public class KVTaskClient {
                     HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) {
                 return response.body();
-            } else if (response.statusCode() == 404) {
-                return "222";
             } else {
-                return "333";
+                return "Error";
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-            return "222";
+            return "Error";
         }
     }
 }

@@ -58,7 +58,7 @@ public class KVServer {
     private String getApiKey() {
         Random random = new Random();
         int key = random.nextInt(10000);
-        return String.valueOf(111);
+        return String.valueOf(key);
     }
 
     public void start() {

@@ -27,8 +27,12 @@ public class EpicTask extends Task {
         this.setOfSubId = anotherEpic.setOfSubId;
     }
 
-    public void addIdToList(int id) {
+    public void addSubId(int id) {
         setOfSubId.add(id);
+    }
+
+    public void removeSubId(int id) {
+        setOfSubId.remove(id);
     }
 
     public void setSetOfSubId(Set<Integer> setOfSubId) {
@@ -37,6 +41,21 @@ public class EpicTask extends Task {
 
     public Set<Integer> getSetOfSubId() {
         return setOfSubId;
+    }
+
+    @Override
+    public void setStatus(TaskStatus status) {
+        System.out.println("Статус у эпика рассчитывается автоматически. \nЗадача не обновлена.");
+    }
+
+    @Override
+    public void setDuration(Duration duration) {
+        System.out.println("Продолжительность эпика рассчитывается автоматически. \nЗадача не обновлена.");
+    }
+
+    @Override
+    public void setStartTime(LocalDateTime startTime) {
+        System.out.println("Дата старта эпика рассчитывается автоматически. \nЗадача не обновлена.");
     }
 
     @Override
@@ -57,21 +76,6 @@ public class EpicTask extends Task {
     }
 
     @Override
-    public void setStatus(TaskStatus status) {
-        System.out.println("Статус у эпика рассчитывается автоматически. \nЗадача не обновлена.");
-    }
-
-    @Override
-    public void setDuration(Duration duration) {
-        System.out.println("Продолжительность эпика рассчитывается автоматически. \nЗадача не обновлена.");
-    }
-
-    @Override
-    public void setStartTime(LocalDateTime startTime) {
-        System.out.println("Дата старта эпика рассчитывается автоматически. \nЗадача не обновлена.");
-    }
-
-    @Override
     public Duration getDuration() {
         List<Task> listOfSubTasks = getListOfSubTasks();
         Duration duration = Duration.ZERO;
@@ -89,6 +93,12 @@ public class EpicTask extends Task {
             this.startTime = listOfSubTasks.get(0).getStartTime();
         }
         return startTime;
+    }
+
+    public void updateInfo() {
+        getStartTime();
+        getDuration();
+        getStatus();
     }
 
     public List<Task> getListOfSubTasks() {

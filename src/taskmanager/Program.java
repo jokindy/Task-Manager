@@ -1,16 +1,18 @@
 package taskmanager;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import taskmanager.managers.*;
-import taskmanager.servers.*;
+import taskmanager.managers.FileBackedTaskManager;
+import taskmanager.managers.HttpTaskManager;
+import taskmanager.managers.Managers;
+import taskmanager.servers.HttpTaskServer;
+import taskmanager.servers.KVServer;
+import taskmanager.servers.KVTaskClient;
 import taskmanager.tasks.Task;
-import taskmanager.tasks.TaskDTO;
-import taskmanager.utilities.converters.Converters;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.List;
+import java.util.Scanner;
+import java.util.TreeMap;
 
 import static taskmanager.utilities.Functions.*;
 
@@ -37,7 +39,6 @@ public class Program {
                 URI serverURL = kvServer.getAddress();
                 System.out.println("Введите API KEY для работы HTTP-менеджера:");
                 int apiKey = scanner.nextInt();
-                fillKVServer(serverURL, apiKey, scanner);
                 KVTaskClient client = new KVTaskClient(serverURL, apiKey);
                 HttpTaskManager manager = (HttpTaskManager) Managers.getDefault(client);
                 runMainProgram(manager, scanner);
@@ -86,35 +87,6 @@ public class Program {
                 break;
             } else {
                 System.out.println("Извините, такой команды пока нет.");
-            }
-        }
-    }
-
-    public static void fillKVServer(URI uri, int apiKey, Scanner scanner) {
-        System.out.println("Заполнить сервер задачи с диска? 1 - Да, 2 - Нет");
-        while (true) {
-            int command = scanner.nextInt();
-            scanner.nextLine();
-            if (command == 1) {
-                FileBackedTaskManager taskManager = Managers.getFileManager("resources\\tasks.csv");
-                TreeMap<Task, Integer> map = taskManager.getPrioritizedTasks();
-                List<TaskDTO> list = new ArrayList<>();
-                for (Task task : map.keySet()) {
-                    list.add(new TaskDTO(task));
-                }
-                Gson gson = Converters.registerAll(new GsonBuilder().serializeNulls()).create();
-                String jsonTasks = gson.toJson(list);
-                StringBuilder jsonHistory = new StringBuilder();
-                for (Task task : taskManager.getHistory()) {
-                    jsonHistory.append(task.getId()).append(",");
-                }
-                new KVTaskClient(uri, apiKey).save(jsonTasks, "tasks");
-                new KVTaskClient(uri, apiKey).save(jsonHistory.toString(), "history");
-                break;
-            } else if (command == 2) {
-                break;
-            } else {
-                System.out.println("Неверная команда.");
             }
         }
     }

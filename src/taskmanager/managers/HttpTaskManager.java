@@ -18,7 +18,6 @@ public class HttpTaskManager extends FileBackedTaskManager {
     public HttpTaskManager(KVTaskClient client) {
         this.client = client;
         gson = Converters.registerAll(new GsonBuilder().serializeNulls()).create();
-        load();
     }
 
     @Override
@@ -39,6 +38,7 @@ public class HttpTaskManager extends FileBackedTaskManager {
         try {
             String jsonHistory = client.load("history");
             String jsonTasks = client.load("tasks");
+            System.out.println("JSON - " + jsonTasks);
             String[] splitTasks = jsonTasks.split("}");
             List<Task> listOfTasks = new ArrayList<>();
             for (int i = 0; i < splitTasks.length - 1; i++) {

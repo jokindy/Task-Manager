@@ -71,10 +71,10 @@ public class InMemoryTaskManager implements TaskManager, EpicHandler {
 
     @Override
     public void removeTask(Task task) {
+        handleEpic(task);
         repository.remove(task);
         historyManager.removeTask(task.getId());
         sortedTasks.remove(task);
-        handleEpic(task);
     }
 
     @Override

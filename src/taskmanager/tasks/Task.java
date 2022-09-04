@@ -124,4 +124,17 @@ public class Task implements Comparable<Task> {
         return Objects.hash(getId(), getType(), getTheme(), getDescription(),
                 getStatus(), getDuration(), getStartTime());
     }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", type=" + type +
+                ", theme='" + theme + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
+                '}';
+    }
 }

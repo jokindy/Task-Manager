@@ -1,14 +1,2 @@
 id,type,theme,description,status,duration,startTime,epicId,subIDs
-1;SIMPLE;11;11;IN_PROGRESS;48;null;0;null
-2;EPIC;22;11;NEW;0;null;0;[7, 8]
-3;EPIC;42424;24242;NEW;0;null;0;[]
-4;SIMPLE;test;run;NEW;240;01.10.2022.01.00;0;null
-5;SIMPLE;tets;unr;DONE;72;02.10.2022.02.00;0;null
-6;EPIC;5;7;NEW;0;null;0;[9]
-7;SUB;SERVER;LAUNCH;NEW;48;null;2;null
-8;SUB;EXPERT;SMOKE THE HOOKAH;IN_PROGRESS;48;01.02.2022.01.00;2;null
-9;SUB;polo;vw;DONE;1;null;6;null
-10;EPIC;22;11;NEW;0;null;0;[]
-11;EPIC;777;11;NEW;0;null;0;[]
-
-3,5,1,2,11,
+1;SIMPLE;100;100;NEW;24;01.10.2022.02.22;0;null

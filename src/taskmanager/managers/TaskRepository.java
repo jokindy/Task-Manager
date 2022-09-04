@@ -21,7 +21,9 @@ public class TaskRepository {
     public void add(Task task) {
         int id = task.getId();
         storage.put(id, task);
-        handleTask(task);
+        if (task.getType().equals(SUB)) {
+            handleSubTask(task);
+        }
     }
 
     public List<Task> getListOfTasks(TaskType type) {
@@ -44,6 +46,10 @@ public class TaskRepository {
     public void remove(Task task) {
         int id = task.getId();
         storage.remove(id);
+        if (task.getType().equals(SUB)) {
+            int epicID = ((SubTask) task).getEpicId();
+            ((EpicTask) storage.get(epicID)).removeSubId(id);
+        }
     }
 
     public void updateTask(Task taskOld, Task taskNew) {
@@ -59,11 +65,11 @@ public class TaskRepository {
         return storage;
     }
 
-    private void handleTask(Task task) {
-        if (task.getType().equals(SUB)) {
-            int id = task.getId();
-            int epicID = ((SubTask) task).getEpicId();
-            ((EpicTask) storage.get(epicID)).addIdToList(id);
-        }
+    private void handleSubTask(Task task) {
+        int id = task.getId();
+        int epicID = ((SubTask) task).getEpicId();
+        EpicTask epicTask = ((EpicTask) storage.get(epicID));
+        epicTask.addSubId(id);
+        epicTask.updateInfo();
     }
 }

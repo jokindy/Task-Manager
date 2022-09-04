@@ -24,7 +24,7 @@ public class HttpTaskServer {
         httpServer.bind(new InetSocketAddress(PORT), 0);
         httpServer.createContext("/tasks", new TaskHandler(manager));
         httpServer.start();
-        System.out.println("Рабочий сервер открыт на порту " + PORT + ". Можете отправлять запросы через Insomnia!");
+        System.out.println("Рабочий сервер открыт на порту " + PORT + ". Можете отправлять запросы через Postman!");
     }
 
     public void close() {
